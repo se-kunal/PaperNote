@@ -1,0 +1,14 @@
+# never ship binaries or secrets here
+*.exe
+*.env
+*.key
+*.pem
+*.pfx
+*secret*
+*credential*
+*.db
+*.bin
+
+# OS noise
+desktop.ini
+Thumbs.db

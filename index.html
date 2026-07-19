@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperNote — Thoughts are fast. Your notes app isn't.</title>
+<meta name="description" content="A featherweight notes app for Windows. Opens in a keystroke, turns meetings into minutes, and keeps every note as a file you own.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     THE BROCHURE. What it does, why it exists, how it compares,
+     why you should care. Every section earns its scroll.
+     ============================================================ */
+  :root{
+    --paper:#FBFAF7; --card:#FFFFFF; --wash:#F4F0E8; --inkpanel:#221B12;
+    --ink:#1C1B18; --ink2:#5A564D; --ink3:#9B968B; --line:#E8E3D8;
+    --es:#B0722C; --es-mid:#D98E48; --es-light:#F2C289; --es-wash:rgba(176,114,44,.09);
+    --bad:#B4472F;
+    --serif:"Literata",Georgia,serif;
+    --sans:"Inter",system-ui,sans-serif;
+    --mono:"JetBrains Mono",Consolas,monospace;
+    --hand:"Caveat",cursive;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+  .col{max-width:1060px; margin:0 auto; padding:0 28px}
+  p{margin:0}
+  a{color:inherit}
+  ::selection{background:var(--es-light)}
+
+  header{position:sticky; top:0; z-index:50; background:rgba(251,250,247,.82); backdrop-filter:blur(12px);
+    border-bottom:1px solid transparent; transition:border-color .3s ease}
+  header.scrolled{border-bottom-color:var(--line)}
+  header .col{display:flex; align-items:center; justify-content:space-between; height:62px}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--serif); font-weight:700; font-size:18px}
+  .mark{width:22px; height:27px; position:relative; flex:none}
+  .mark .s1{position:absolute; inset:0 3px 0 0; background:var(--card); border:1.5px solid var(--ink); border-radius:3px 3px 3px 7px}
+  .mark .s2{position:absolute; inset:2px 0 -2px 3px; background:var(--es-mid); border-radius:3px 3px 3px 7px; z-index:-1}
+  .mark i{position:absolute; left:5px; height:1.5px; border-radius:2px; background:var(--line)}
+  .mark i:first-of-type{top:8px; right:7px; background:var(--es-mid)}
+  .mark i:nth-of-type(2){top:13px; right:7px}
+  .mark i:nth-of-type(3){top:18px; right:10px}
+  header nav{display:flex; align-items:center; gap:24px; font-size:14px}
+  header nav a{text-decoration:none; color:var(--ink2); transition:color .18s ease}
+  header nav a:hover{color:var(--es)}
+  header nav a.dl{background:var(--ink); color:var(--paper); padding:9px 16px; border-radius:10px; font-weight:600;
+    transition:transform .18s ease, box-shadow .18s ease}
+  header nav a.dl:hover{color:var(--paper); transform:translateY(-1px); box-shadow:0 10px 20px -12px rgba(28,27,24,.6)}
+  @media(max-width:560px){ header nav a.lnk{display:none} }
+
+  /* ---------- hero ---------- */
+  .hero{position:relative; padding:104px 0 96px; overflow:hidden}
+  .ruled{position:absolute; inset:0; pointer-events:none;
+    background-image:repeating-linear-gradient(transparent 0 42px, rgba(176,114,44,.045) 42px 43px);
+    -webkit-mask-image:radial-gradient(130% 90% at 50% 0%, #000 40%, transparent 80%);
+    mask-image:radial-gradient(130% 90% at 50% 0%, #000 40%, transparent 80%)}
+  .hero .col{position:relative; display:grid; grid-template-columns:1.02fr .98fr; gap:56px; align-items:center}
+  .hero h1{font-family:var(--serif); font-weight:700; font-size:clamp(40px,5.6vw,66px); line-height:1.06; letter-spacing:-.025em}
+  .hero h1 em{font-style:italic; color:var(--es)}
+  .hero .sub{margin-top:22px; font-size:19px; color:var(--ink2); max-width:38ch}
+  .hero .cta{margin-top:32px; display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+  .btn{background:var(--ink); color:var(--paper); padding:15px 28px; border-radius:13px; font-weight:600; font-size:16px;
+    text-decoration:none; display:inline-flex; align-items:center; gap:9px;
+    transition:transform .18s ease, box-shadow .18s ease}
+  .btn:hover{transform:translateY(-2px); box-shadow:0 18px 34px -18px rgba(28,27,24,.55)}
+  .btn svg{width:16px; height:16px; fill:currentColor}
+  .hero .fine{font-family:var(--mono); font-size:12.5px; color:var(--ink3)}
+  .hero .hand{margin-top:26px; display:inline-block; font-family:var(--hand); font-size:24px; color:var(--es); transform:rotate(-1.8deg)}
+
+  /* hero entrance */
+  .he{opacity:0; transform:translateY(18px); animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+  .he.d1{animation-delay:.05s} .he.d2{animation-delay:.15s} .he.d3{animation-delay:.25s}
+  .he.d4{animation-delay:.35s} .he.d5{animation-delay:.5s}
+  @keyframes rise{to{opacity:1; transform:none}}
+
+  /* the app, alive */
+  .stage{position:relative}
+  .shot{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; text-align:left;
+    box-shadow:0 50px 100px -50px rgba(28,27,24,.5); transform:rotate(.8deg);
+    opacity:0; animation:shotIn .9s cubic-bezier(.2,.7,.3,1) .25s forwards}
+  @keyframes shotIn{from{opacity:0; transform:translateX(46px) rotate(3deg)} to{opacity:1; transform:rotate(.8deg)}}
+  .shot .bar{display:flex; align-items:center; gap:7px; padding:12px 16px; border-bottom:1px solid var(--line)}
+  .shot .bar .d{width:9px; height:9px; border-radius:50%; background:var(--line)}
+  .shot .bar .t{font-family:var(--mono); font-size:11px; color:var(--ink3); margin-left:7px}
+  .shot .page{padding:30px 36px 34px; font-family:var(--serif)}
+  .shot h3{font-weight:600; font-size:27px; margin:0; letter-spacing:-.01em}
+  .shot .meta{font-family:var(--mono); font-size:11px; color:var(--ink3); margin-top:7px}
+  .shot .line{margin-top:18px; font-size:16.5px; line-height:1.75; color:var(--ink2); min-height:1.75em}
+  .cursor{display:inline-block; width:2px; height:1.05em; background:var(--es); vertical-align:-3px; margin-left:1px; animation:blink 1.05s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .todo{margin-top:16px; display:flex; flex-direction:column; gap:10px; font-family:var(--sans); font-size:15px}
+  .todo div{display:flex; align-items:center; gap:10px}
+  .box{width:17px; height:17px; border:1.6px solid var(--es-mid); border-radius:5px; flex:none}
+  .box.on{background:var(--es-mid); position:relative}
+  .box.on::after{content:"\2713"; position:absolute; inset:0; color:#fff; font-size:11px; display:flex; align-items:center; justify-content:center}
+  .todo .done{color:var(--ink3); text-decoration:line-through}
+  .qfloat{position:absolute; right:-14px; bottom:-26px; width:236px; background:var(--card); border:1px solid var(--line);
+    border-radius:13px; padding:13px 15px; box-shadow:0 24px 48px -22px rgba(28,27,24,.55); transform:rotate(-2.4deg);
+    opacity:0; animation:qIn .6s cubic-bezier(.3,1.4,.4,1) 1.05s forwards}
+  @keyframes qIn{from{opacity:0; transform:translateY(34px) scale(.85) rotate(-2.4deg)} to{opacity:1; transform:rotate(-2.4deg)}}
+  .qfloat .qh{display:flex; justify-content:space-between; color:var(--ink3); font-size:12px}
+  .qfloat .qh b{color:var(--ink2); font-weight:600}
+  .qfloat .qt{margin-top:8px; font-size:14px; color:var(--ink)}
+
+  /* ---------- why band ---------- */
+  .why{background:var(--wash); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:88px 0}
+  .why .col{max-width:720px; text-align:center}
+  .why .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink3)}
+  .why h2{font-family:var(--serif); font-weight:700; font-size:clamp(30px,4.6vw,48px); letter-spacing:-.02em; line-height:1.1; margin-top:14px}
+  .why h2 em{font-style:italic; color:var(--es)}
+  .why p{margin-top:20px; font-size:19px; color:var(--ink2); line-height:1.7}
+  .why .rule{margin-top:24px; font-family:var(--hand); font-size:26px; color:var(--es); transform:rotate(-1.4deg); display:inline-block}
+
+  /* ---------- feature rows ---------- */
+  .feats{padding:40px 0 30px}
+  .feat{display:grid; grid-template-columns:1fr 1.08fr; gap:56px; align-items:center; padding:64px 0}
+  .feat + .feat{border-top:1px solid var(--line)}
+  .feat:nth-child(even) .txt{order:2}
+  .feat .n{font-family:var(--mono); font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--es)}
+  .feat h2{font-family:var(--serif); font-weight:600; font-size:clamp(27px,3.4vw,38px); letter-spacing:-.02em; line-height:1.14; margin-top:12px}
+  .feat .say{margin-top:16px; font-size:17.5px; color:var(--ink2); max-width:40ch}
+  .feat .say b{color:var(--ink); font-weight:600}
+  .kbd{font-family:var(--mono); font-size:13px; background:var(--card); border:1px solid var(--line);
+    border-bottom-width:2.5px; border-radius:7px; padding:5px 10px; color:var(--ink2); white-space:nowrap}
+
+  .demo{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    box-shadow:0 30px 60px -34px rgba(28,27,24,.4); transition:transform .3s ease, box-shadow .3s ease}
+  .demo:hover{transform:translateY(-4px); box-shadow:0 40px 70px -36px rgba(28,27,24,.5)}
+  .demo .dbar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--ink3)}
+  .demo .dbar .d{width:9px; height:9px; border-radius:50%; background:var(--line)}
+  .demo .dbody{padding:20px 22px}
+
+  .deskwash{background:var(--wash); border:0; box-shadow:none; display:flex; justify-content:flex-end;
+    align-items:flex-end; min-height:200px; padding:18px; border-radius:14px}
+  .qcard2{width:250px; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:14px 16px;
+    box-shadow:0 22px 44px -20px rgba(28,27,24,.5); transform:rotate(-1.6deg)}
+  .qcard2 .qh{display:flex; justify-content:space-between; color:var(--ink3); font-size:12px}
+  .qcard2 .qh b{color:var(--ink2); font-weight:600}
+  .qcard2 .qt{margin-top:8px; font-size:14.5px; color:var(--ink)}
+
+  .prog{display:flex; flex-direction:column; gap:8px}
+  .prog .blk{border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-size:13.5px; color:var(--ink2)}
+  .prog .blk.done{border-color:var(--es-light); background:var(--es-wash); color:var(--ink)}
+  .prog .blk.work{border-color:var(--es-mid); box-shadow:0 0 0 3px var(--es-wash)}
+  .status{font-family:var(--mono); font-size:11px; color:var(--es); display:flex; align-items:center; gap:7px; margin-bottom:11px}
+  .pulse{width:7px; height:7px; border-radius:50%; background:var(--es-mid); animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+  table.mini{border-collapse:collapse; width:100%; font-family:var(--sans); font-size:14px}
+  table.mini th{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
+    text-align:left; padding:7px 10px; border-bottom:1.5px solid var(--line)}
+  table.mini td{padding:8px 10px; border-bottom:1px solid var(--line); color:var(--ink)}
+  table.mini tr.sum td{font-weight:700; color:var(--es); border-bottom:0}
+  .mcap{margin-top:12px; font-family:var(--mono); font-size:11px; color:var(--ink3)}
+
+  .files{font-family:var(--mono); font-size:13px; line-height:2; color:var(--ink2)}
+  .files b{color:var(--es); font-weight:500}
+  .files .fn{color:var(--ink)}
+  .tagrow{margin-top:14px; display:flex; flex-wrap:wrap; gap:8px}
+  .tagrow span{font-family:var(--mono); font-size:11px; color:var(--ink2); border:1px solid var(--line);
+    border-radius:99px; padding:4px 11px; background:var(--paper)}
+
+  /* ---------- comparison ---------- */
+  .versus{padding:96px 0}
+  .versus .head{text-align:center; max-width:640px; margin:0 auto 48px}
+  .versus .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink3)}
+  .versus h2{font-family:var(--serif); font-weight:700; font-size:clamp(30px,4.6vw,48px); letter-spacing:-.02em; line-height:1.1; margin-top:14px}
+  .versus .head p{margin-top:14px; color:var(--ink2); font-size:17.5px}
+  .vwrap{overflow-x:auto}
+  table.vs{border-collapse:separate; border-spacing:0; width:100%; min-width:640px; font-size:15px}
+  table.vs th{padding:14px 18px; text-align:center; font-family:var(--serif); font-size:17px; font-weight:700; color:var(--ink2)}
+  table.vs th:first-child{text-align:left; font-family:var(--sans); font-size:13px; font-weight:600; color:var(--ink3)}
+  table.vs td{padding:13px 18px; text-align:center; border-top:1px solid var(--line); color:var(--ink2)}
+  table.vs td:first-child{text-align:left; color:var(--ink); font-weight:500; font-size:14.5px}
+  table.vs .pn{background:var(--es-wash)}
+  table.vs th.pn{color:var(--es); border-radius:14px 14px 0 0; font-size:18px}
+  table.vs tr:last-child .pn{border-radius:0 0 14px 14px}
+  .yes{color:var(--es); font-weight:700}
+  .no{color:var(--bad); opacity:.75}
+  .meh{color:var(--ink3)}
+  .versus .after{text-align:center; margin-top:34px; font-family:var(--serif); font-weight:600; font-size:clamp(19px,2.4vw,25px)}
+  .versus .after em{font-style:italic; color:var(--es)}
+
+  /* ---------- little things ---------- */
+  .little-band{background:var(--wash); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:80px 0; text-align:center}
+  .little-band h2{font-family:var(--serif); font-weight:600; font-size:clamp(26px,3.6vw,38px); letter-spacing:-.02em}
+  .little-band .say{margin:12px auto 0; color:var(--ink2); font-size:17px}
+  .little{margin:36px auto 0; max-width:680px; display:flex; flex-wrap:wrap; justify-content:center; gap:10px}
+  .little span{background:var(--card); border:1px solid var(--line); border-radius:99px; padding:8px 16px;
+    font-size:14px; color:var(--ink2); transition:transform .2s ease, border-color .2s ease, color .2s ease}
+  .little span:hover{transform:translateY(-2px); border-color:var(--es-mid); color:var(--ink)}
+
+  /* ---------- ownership panel ---------- */
+  .own{padding:96px 0}
+  .own .panel{background:var(--inkpanel); color:var(--paper); border-radius:22px; padding:56px 54px;
+    display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; overflow:hidden; position:relative}
+  .own h2{font-family:var(--serif); font-weight:700; font-size:clamp(28px,3.8vw,42px); letter-spacing:-.02em; line-height:1.12}
+  .own h2 em{font-style:italic; color:var(--es-light)}
+  .own .panel p{margin-top:16px; color:#C9C2B6; font-size:17px}
+  .own .proof{background:#191510; border:1px solid #3A3226; border-radius:13px; padding:20px 22px;
+    font-family:var(--mono); font-size:12.5px; line-height:1.9; color:#C9C2B6}
+  .own .proof .h{color:var(--es-light)}
+  .own .tags{margin-top:20px; display:flex; flex-wrap:wrap; gap:8px}
+  .own .tags span{font-family:var(--mono); font-size:11px; color:#C9C2B6; border:1px solid #3A3226; border-radius:99px; padding:5px 11px}
+
+  /* ---------- close ---------- */
+  .close{text-align:center; padding:110px 0 110px}
+  .close .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink3)}
+  .close h2{font-family:var(--serif); font-weight:700; font-size:clamp(36px,5.6vw,64px); letter-spacing:-.025em; line-height:1.05; margin-top:16px}
+  .close .cta{margin-top:34px; display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap}
+  .close .fine{font-family:var(--mono); font-size:12.5px; color:var(--ink3)}
+  .close .hand{display:block; margin-top:26px; font-family:var(--hand); font-size:24px; color:var(--es); transform:rotate(-1.6deg)}
+
+  footer{border-top:1px solid var(--line); padding:28px 0}
+  footer .col{display:flex; justify-content:space-between; align-items:center; color:var(--ink3); font-size:13px; flex-wrap:wrap; gap:12px}
+  footer a{text-decoration:none; color:var(--ink2); transition:color .18s ease}
+  footer a:hover{color:var(--es)}
+
+  /* ---------- scroll reveals ---------- */
+  .rv{opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1)}
+  .rv.in{opacity:1; transform:none}
+  .rv-l{opacity:0; transform:translateX(-36px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1)}
+  .rv-r{opacity:0; transform:translateX(36px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1)}
+  .rv-l.in,.rv-r.in{opacity:1; transform:none}
+  .stag > *{opacity:0; transform:translateY(14px); transition:opacity .55s ease, transform .55s ease}
+  .stag.in > *{opacity:1; transform:none}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important}
+    .he,.shot,.qfloat,.rv,.rv-l,.rv-r,.stag > *{opacity:1 !important; transform:none !important}
+    html{scroll-behavior:auto}
+  }
+  @media(max-width:880px){
+    .hero .col{grid-template-columns:1fr; gap:40px}
+    .feat{grid-template-columns:1fr; gap:32px}
+    .feat:nth-child(even) .txt{order:0}
+    .own .panel{grid-template-columns:1fr; padding:38px 28px}
+    .qfloat{right:4px}
+  }
+</style>
+</head>
+<body>
+
+<header id="top">
+  <div class="col">
+    <div class="brand"><span class="mark"><span class="s2"></span><span class="s1"></span><i></i><i></i><i></i></span>PaperNote</div>
+    <nav>
+      <a class="lnk" href="#feats">What it does</a>
+      <a class="lnk" href="#versus">Compare</a>
+      <a class="lnk" href="https://github.com/se-kunal/PaperNote">GitHub</a>
+      <a class="dl" href="https://github.com/se-kunal/PaperNote/releases/latest">Download free</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="ruled"></div>
+  <div class="col">
+    <div>
+      <h1 class="he d1">Thoughts are fast.<br>Your notes app isn't.<br><em>PaperNote is.</em></h1>
+      <p class="sub he d2">A featherweight notes app for Windows. It opens in a keystroke, turns meetings into minutes, and keeps every note as a file you own.</p>
+      <div class="cta he d3">
+        <a class="btn" href="https://github.com/se-kunal/PaperNote/releases/latest">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Download for Windows
+        </a>
+        <span class="fine">free · 20 MB · no account · offline</span>
+      </div>
+      <span class="hand he d4">the note opens before the thought leaves</span>
+    </div>
+    <div class="stage">
+      <div class="shot">
+        <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Meetings / Q3 Kickoff.md</span></div>
+        <div class="page">
+          <h3>Q3 Kickoff</h3>
+          <div class="meta">July 19, 2026 · 84 words · 1 min read</div>
+          <p class="line" id="typeline"></p>
+          <div class="todo">
+            <div><span class="box on"></span><span class="done">Lock scope with design</span></div>
+            <div><span class="box"></span>Draft the timeline</div>
+            <div><span class="box"></span>Send summary to the team</div>
+          </div>
+        </div>
+      </div>
+      <div class="qfloat">
+        <div class="qh"><b>Quick note</b><span>✕</span></div>
+        <div class="qt">ping Sam re: staging env<span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHY ===================== -->
+<section class="why">
+  <div class="col">
+    <div class="eyebrow rv">Why this exists</div>
+    <h2 class="rv">Somewhere between the spinner<br>and the sign-in screen, <em>a good idea died.</em></h2>
+    <p class="rv">It happened to us one time too many. The tools were either instant but forgetful, or organized but heavy, and every one of them wanted an account before it would hold a grocery list. So we built the app that should have shipped with Windows.</p>
+    <span class="rule rv">one rule: the note opens before the thought leaves.</span>
+  </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section class="feats" id="feats">
+  <div class="col">
+
+    <div class="feat">
+      <div class="txt rv-l">
+        <div class="n">Capture · 01</div>
+        <h2>One keystroke, from anywhere in Windows.</h2>
+        <p class="say"><span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">N</span> — mid-call, mid-game, mid-anything. A small card slides over your screen. Type, click away, <b>saved</b>. You never left what you were doing, and the idea never left you.</p>
+      </div>
+      <div class="rv-r">
+        <div class="demo deskwash">
+          <div class="qcard2">
+            <div class="qh"><b>Quick note</b><span>✕</span></div>
+            <div class="qt">check the canary before EOD<span class="cursor"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="txt rv-r">
+        <div class="n">Meetings · 02</div>
+        <h2>Transcript in. Minutes out.</h2>
+        <p class="say">Paste 600 lines of raw Teams transcript. PaperNote cleans it section by section, in front of you, then writes the part you were dreading: <b>decisions, actions, owners</b>. The five o'clock summary, done by four.</p>
+      </div>
+      <div class="rv-l">
+        <div class="demo">
+          <div class="dbar"><span class="d"></span><span class="d"></span><span class="d"></span> Meeting note</div>
+          <div class="dbody">
+            <div class="status"><span class="pulse"></span> Cleaning section 3 of 5…</div>
+            <div class="prog stag">
+              <div class="blk done">Decisions — ship v1.6 before the demo</div>
+              <div class="blk done">Actions — Priya owns the timeline</div>
+              <div class="blk work">Cleaning: "so anyway the staging box…"</div>
+              <div class="blk">…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="txt rv-l">
+        <div class="n">Notes that work · 03</div>
+        <h2>Your notes can do math now.</h2>
+        <p class="say">Paste cells from Excel and they land as a real table that <b>sums its own columns</b> and fills down series. Type a flowchart as text and watch it become a diagram. Paste a clumsy draft, get back one that sounds like you on a good day.</p>
+      </div>
+      <div class="rv-r">
+        <div class="demo">
+          <div class="dbar"><span class="d"></span><span class="d"></span><span class="d"></span> Budget.md</div>
+          <div class="dbody">
+            <table class="mini">
+              <tr><th>Item</th><th>Cost</th></tr>
+              <tr><td>Licenses</td><td>1,200</td></tr>
+              <tr><td>Hosting</td><td>340</td></tr>
+              <tr><td>Coffee, obviously</td><td>90</td></tr>
+              <tr class="sum"><td>Sum</td><td>1,630</td></tr>
+            </table>
+            <div class="mcap">pasted from Excel · Σ added by the table itself</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="txt rv-r">
+        <div class="n">Ownership · 04</div>
+        <h2>Your words. Your disk. Your rules.</h2>
+        <p class="say">Every note is a <b>plain Markdown file</b> in your Documents folder. Lock the private ones with a password, encrypted on your machine. Share one with a teammate straight over the office network, no cloud in the middle.</p>
+      </div>
+      <div class="rv-l">
+        <div class="demo">
+          <div class="dbar"><span class="d"></span><span class="d"></span><span class="d"></span> Explorer</div>
+          <div class="dbody">
+            <div class="files">
+              <div>📁 <b>Documents\PaperNote\</b></div>
+              <div>&nbsp;&nbsp;&nbsp;Meetings\ <span class="fn">Q3 Kickoff.md</span></div>
+              <div>&nbsp;&nbsp;&nbsp;Ideas\ <span class="fn">the standup thought.md</span></div>
+              <div>&nbsp;&nbsp;&nbsp;Private\ <span class="fn">🔒 salary notes.md</span></div>
+            </div>
+            <div class="tagrow">
+              <span>plain .md</span><span>password lock</span><span>LAN share</span><span>PDF export</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== COMPARISON ===================== -->
+<section class="versus" id="versus">
+  <div class="col">
+    <div class="head">
+      <div class="eyebrow rv">The honest comparison</div>
+      <h2 class="rv">We only had to win<br>one column.</h2>
+      <p class="rv">Every notes tool on Windows makes you pick two of three: fast, organized, yours. We got greedy.</p>
+    </div>
+    <div class="vwrap rv">
+      <table class="vs">
+        <tr><th></th><th>Notepad</th><th>Cloud notes apps</th><th class="pn">PaperNote</th></tr>
+        <tr><td>Opens instantly</td><td class="yes">✓</td><td class="no">✗</td><td class="pn yes">✓</td></tr>
+        <tr><td>Remembers everything</td><td class="no">✗</td><td class="yes">✓</td><td class="pn yes">✓</td></tr>
+        <tr><td>Tables, diagrams, checklists</td><td class="no">✗</td><td class="yes">✓</td><td class="pn yes">✓</td></tr>
+        <tr><td>Writes your meeting minutes</td><td class="no">✗</td><td class="meh">some, for a fee</td><td class="pn yes">✓</td></tr>
+        <tr><td>Works fully offline</td><td class="yes">✓</td><td class="no">✗</td><td class="pn yes">✓</td></tr>
+        <tr><td>No account required</td><td class="yes">✓</td><td class="no">✗</td><td class="pn yes">✓</td></tr>
+        <tr><td>Notes are plain files you own</td><td class="yes">✓</td><td class="no">✗</td><td class="pn yes">✓</td></tr>
+        <tr><td>Price</td><td class="meh">free</td><td class="meh">$8+/month</td><td class="pn yes">free</td></tr>
+      </table>
+    </div>
+    <p class="after rv">Notepad's speed. The big apps' brains. <em>Your disk.</em></p>
+  </div>
+</section>
+
+<!-- ===================== LITTLE THINGS ===================== -->
+<section class="little-band">
+  <div class="col">
+    <h2 class="rv">And the little things.</h2>
+    <p class="say rv">The details you stop noticing, because they just work.</p>
+    <div class="little stag">
+      <span>Instant full-text search</span>
+      <span>Sticky notes float on top</span>
+      <span>Templates for meetings & standups</span>
+      <span>Slash commands</span>
+      <span>Command palette (Ctrl+K)</span>
+      <span>Paste screenshots into notes</span>
+      <span>Focus mode (F11)</span>
+      <span>Dark mode</span>
+      <span>Word count & read time</span>
+      <span>Trash you can recover from</span>
+      <span>Autosave, no save button</span>
+      <span>Opens .md .txt .csv files</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OWNERSHIP PANEL ===================== -->
+<section class="own">
+  <div class="col">
+    <div class="panel rv">
+      <div>
+        <h2>No account. No cloud.<br><em>No trust required.</em></h2>
+        <p>We can't read your notes, lose your notes, or charge you rent for them, because we never have them. They live on your disk, in a format any text editor has understood since 1983. If PaperNote vanished tomorrow, your notes wouldn't notice.</p>
+        <div class="tags">
+          <span>no telemetry</span><span>no sign-in</span><span>works offline</span><span>plain .md files</span><span>encrypted lock, on device</span>
+        </div>
+      </div>
+      <div class="proof">
+        <div>📁 Documents\PaperNote\Meetings\<span style="color:#F2E9DC">Q3 Kickoff.md</span></div>
+        <div>&nbsp;</div>
+        <div class="h"># Q3 Kickoff</div>
+        <div class="h">## Decisions</div>
+        <div>- Ship v1.6 before the demo</div>
+        <div class="h">## Actions</div>
+        <div>- [ ] Priya — timeline by Friday</div>
+        <div>&nbsp;</div>
+        <div style="color:#7A7060">yours. openable in anything. forever.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CLOSE ===================== -->
+<section class="close" id="get">
+  <div class="col">
+    <div class="eyebrow rv">Tomorrow, 9:02 AM</div>
+    <h2 class="rv">The next idea is coming.<br>Be ready in one keystroke.</h2>
+    <div class="cta rv">
+      <a class="btn" href="https://github.com/se-kunal/PaperNote/releases/latest">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Download PaperNote, free
+      </a>
+      <span class="fine">Windows 10/11 · 20 MB · installs faster than Word opens</span>
+    </div>
+    <span class="hand rv">then press Ctrl+Alt+N and feel it</span>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    <div class="brand" style="font-size:15px"><span class="mark" style="transform:scale(.75)"><span class="s2"></span><span class="s1"></span><i></i><i></i><i></i></span>PaperNote</div>
+    <div><a href="https://github.com/se-kunal/PaperNote">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/se-kunal/PaperNote/issues">Report a bug</a></div>
+    <div>Built by <a href="https://www.linkedin.com/in/kunalshokeen" target="_blank" rel="noopener">Kunal Shokeen</a></div>
+  </div>
+</footer>
+
+<script>
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // header grows a hairline once you scroll
+  var hd = document.getElementById('top');
+  addEventListener('scroll', function(){ hd.classList.toggle('scrolled', scrollY > 8); }, {passive:true});
+
+  // scroll reveals + stagger
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      if(e.target.classList.contains('stag'))
+        [].forEach.call(e.target.children, function(c,i){ c.style.transitionDelay = (i*70)+'ms'; });
+      io.unobserve(e.target);
+    });
+  }, {threshold:.16});
+  document.querySelectorAll('.rv,.rv-l,.rv-r,.stag').forEach(function(el){ io.observe(el); });
+
+  // the hero note types one line, then rests
+  (function(){
+    var el = document.getElementById('typeline');
+    var full = "Kicking off Q3. Scope is tight, timeline is real.";
+    if(reduce){ el.innerHTML = full + '<span class="cursor"></span>'; return; }
+    var i = 0;
+    setTimeout(function tick(){
+      el.innerHTML = full.slice(0, i) + '<span class="cursor"></span>';
+      if(i++ < full.length) setTimeout(tick, 36 + Math.random()*38);
+    }, 1200);
+  })();
+</script>
+
+</body>
+</html>
