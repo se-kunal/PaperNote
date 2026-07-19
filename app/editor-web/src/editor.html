@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <div id="toolbar">
+    <button data-cmd="undo" title="Undo  (Ctrl+Z)" class="tb-icon">&#xE7A7;</button>
+    <button data-cmd="redo" title="Redo  (Ctrl+Y)" class="tb-icon">&#xE7A6;</button>
+    <span class="sep"></span>
+    <button data-cmd="bold" title="Bold  (Ctrl+B)"><b>B</b></button>
+    <button data-cmd="italic" title="Italic  (Ctrl+I)"><i>I</i></button>
+    <span class="sep"></span>
+    <button data-cmd="task" title="Checklist" class="tb-icon">&#xE73A;</button>
+    <button data-cmd="bullet" title="Bulleted list" class="tb-icon">&#xE8FD;</button>
+    <button data-cmd="ordered" title="Numbered list">1.</button>
+    <span class="sep"></span>
+    <button data-cmd="code" title="Code block">&lt;/&gt;</button>
+    <button data-cmd="link" title="Link  (Ctrl+K)" class="tb-icon">&#xE71B;</button>
+    <span class="sep"></span>
+    <button id="btn-format" data-cmd="format" title="More formatting" class="tb-icon">&#xE712;</button>
+
+    <div id="format-menu" hidden>
+      <button data-cmd="h1">Heading 1</button>
+      <button data-cmd="h2">Heading 2</button>
+      <button data-cmd="quote">Quote</button>
+      <div class="fm-sep"></div>
+      <button data-cmd="meeting-note">Meeting note<sup class="ai-badge">AI</sup></button>
+      <button data-cmd="enhance">Enhance writing<sup class="ai-badge">AI</sup></button>
+      <div class="fm-sep"></div>
+      <button data-cmd="underline">Underline</button>
+      <button data-cmd="strike">Strikethrough</button>
+      <button data-cmd="highlight">Highlight</button>
+      <div class="fm-sep"></div>
+      <button data-cmd="table">Table</button>
+      <button data-cmd="divider">Divider</button>
+      <div class="fm-sep"></div>
+      <button data-cmd="font">Serif font</button>
+      <button data-cmd="ruled">Ruled lines</button>
+      <div class="fm-sep"></div>
+      <div class="fm-row">
+        <select id="sel-fontsize" class="tb-select" title="Font size (applies to selection or new text)">
+          <option value="">Size</option>
+          <option value="12px">12</option>
+          <option value="14px">14</option>
+          <option value="16px">16</option>
+          <option value="17px">17</option>
+          <option value="20px">20</option>
+          <option value="24px">24</option>
+          <option value="28px">28</option>
+          <option value="32px">32</option>
+        </select>
+        <select id="sel-lineheight" class="tb-select" title="Line spacing (applies to selection or current line)">
+          <option value="">Spacing</option>
+          <option value="1">1.0</option>
+          <option value="1.15">1.15</option>
+          <option value="1.5">1.5</option>
+          <option value="1.75">1.75</option>
+          <option value="2">2.0</option>
+          <option value="2.5">2.5</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="bubble" class="bubble" style="visibility:hidden">
+    <button data-cmd="bold"><b>B</b></button>
+    <button data-cmd="italic"><i>I</i></button>
+    <button data-cmd="underline"><u>U</u></button>
+    <button data-cmd="highlight">&#9646;</button>
+    <button data-cmd="h2">H</button>
+    <button data-cmd="bullet">&#8226;</button>
+    <button data-cmd="task">&#10003;</button>
+  </div>
+
+  <div id="note-meta" hidden></div>
+  <div id="editor"></div>
+  <script src="editor.js"></script>
+</body>
+</html>

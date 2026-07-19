@@ -1,0 +1,34 @@
+# build artifacts
+app/PaperNote/bin/
+app/PaperNote/obj/
+app/editor-web/node_modules/
+app/editor-web/dist/
+_temp/
+Publish/
+*.exe
+# exception: Microsoft's WebView2 bootstrapper, required by the installer build
+!app/installer/MicrosoftEdgeWebview2Setup.exe
+
+# secrets — never ship keys of any kind
+*.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.p12
+openai-key*
+*secret*
+*credential*
+appsettings.*.local.json
+
+# local app data that must not leak (db, key blobs, share config)
+*.db
+*.db-shm
+*.db-wal
+*.bin
+
+# IDE / OS noise
+.vs/
+*.user
+desktop.ini
+Thumbs.db

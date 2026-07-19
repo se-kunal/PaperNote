@@ -1,0 +1,255 @@
+<UserControl x:Class="PaperNote.Views.SidebarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource SidebarBgBrush}">
+    <Grid Margin="14,16,14,10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel>
+
+        <TextBlock Text="FOLDERS" FontSize="11" FontWeight="SemiBold"
+                   Foreground="{DynamicResource InkTertiaryBrush}" Margin="6,4,0,8"/>
+
+        <ListBox x:Name="FolderList"
+                 ItemsSource="{Binding Folders}"
+                 SelectedItem="{Binding SelectedFolder, Mode=TwoWay}"
+                 Background="Transparent" BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                 HorizontalContentAlignment="Stretch">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem" BasedOn="{StaticResource AnimatedListItem}">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0,1"/>
+                    <Setter Property="AllowDrop" Value="True"/>
+                    <EventSetter Event="DragOver" Handler="OnFolderDragOver"/>
+                    <EventSetter Event="DragLeave" Handler="OnFolderDragLeave"/>
+                    <EventSetter Event="Drop" Handler="OnFolderDrop"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="bd" CornerRadius="8" Padding="11,6" Background="Transparent">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsDropTarget}" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderThickness" Value="1.5"/>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <!-- Tag carries the MainViewModel so the ContextMenu (a separate visual
+                         tree) can reach its commands via PlacementTarget.Tag. -->
+                    <Grid Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick"
+                                          Command="{Binding DataContext.BeginRenameFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding}"/>
+                        </Grid.InputBindings>
+                        <Grid.ContextMenu>
+                            <!-- Only real folders (IsRenamable) can be renamed/deleted;
+                                 items collapse for All Notes / Trash. Commands reach the
+                                 MainViewModel through PlacementTarget.Tag. -->
+                            <ContextMenu>
+                                <MenuItem Header="Rename"
+                                          Visibility="{Binding IsRenamable, Converter={StaticResource BoolToVis}}"
+                                          Command="{Binding PlacementTarget.Tag.BeginRenameFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}"/>
+                                <MenuItem Header="Delete Folder"
+                                          Visibility="{Binding IsRenamable, Converter={StaticResource BoolToVis}}"
+                                          Command="{Binding PlacementTarget.Tag.DeleteFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                          CommandParameter="{Binding}"/>
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="13"
+                                   Foreground="{DynamicResource InkBrush}" TextTrimming="CharacterEllipsis"
+                                   Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVis}}"/>
+                        <TextBox Grid.Column="0" Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                 Tag="folder" KeyDown="OnRenameKeyDown" LostFocus="OnRenameCommit"
+                                 Loaded="OnRenameBoxLoaded" FontSize="13.5" Padding="0" BorderThickness="0"
+                                 Background="White" Foreground="{DynamicResource InkBrush}"
+                                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Count}" FontSize="12"
+                                   Foreground="{DynamicResource InkTertiaryBrush}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Content="+  New Folder" HorizontalAlignment="Left"
+                Command="{Binding NewFolderCommand}"
+                Background="Transparent" BorderThickness="0" Padding="6,6" Margin="0,4,0,0"
+                Foreground="{DynamicResource InkSecondaryBrush}" Cursor="Hand"/>
+
+        <!-- TAGS (only when notes carry #hashtags) -->
+        <StackPanel Visibility="{Binding HasTags, Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="TAGS" FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource InkTertiaryBrush}" Margin="6,14,0,8"/>
+            <ListBox x:Name="TagList"
+                     ItemsSource="{Binding Tags}"
+                     SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
+                     Background="Transparent" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     HorizontalContentAlignment="Stretch">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource AnimatedListItem}">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,2"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="bd" CornerRadius="8" Padding="12,10" Background="Transparent">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding Display}" FontSize="13.5"
+                                       Foreground="{StaticResource AccentDeepBrush}" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Count}" FontSize="12"
+                                       Foreground="{DynamicResource InkTertiaryBrush}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        </StackPanel>
+        </ScrollViewer>
+
+        <!-- ON YOUR NETWORK: sharing toggle + live peer list (BEACON) -->
+        <StackPanel Grid.Row="1" Margin="0,8,0,0">
+            <Grid Margin="6,0,2,6">
+                <TextBlock Text="ON YOUR NETWORK" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource InkTertiaryBrush}" VerticalAlignment="Center"/>
+                <Button HorizontalAlignment="Right" Command="{Binding ToggleSharingCommand}" Cursor="Hand"
+                        ToolTip="Toggle sharing on this network">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="track" Width="38" Height="22" CornerRadius="11"
+                                    Background="{DynamicResource LineBrush}">
+                                <Ellipse x:Name="knob" Width="16" Height="16" Fill="White"
+                                         HorizontalAlignment="Left" Margin="3,0,0,0"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <DataTrigger Binding="{Binding SharingEnabled}" Value="True">
+                                    <Setter TargetName="track" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                    <Setter TargetName="knob" Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter TargetName="knob" Property="Margin" Value="0,0,3,0"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <TextBlock Text="searching for peers…" FontSize="12" Margin="6,2,0,6"
+                       Foreground="{DynamicResource InkTertiaryBrush}" FontStyle="Italic"
+                       Visibility="{Binding IsSearching, Converter={StaticResource BoolToVis}}"/>
+
+            <ScrollViewer MaxHeight="168" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Visibility="{Binding HasPeers, Converter={StaticResource BoolToVis}}">
+                <ItemsControl ItemsSource="{Binding Peers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border AllowDrop="True" DragOver="OnPeerDragOver" Drop="OnPeerDrop"
+                                    Background="Transparent" CornerRadius="7" Padding="6,4" Margin="0,1"
+                                    ToolTip="Drag a note here to share it">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="28" Height="28" CornerRadius="14" Background="{Binding Avatar}">
+                                        <TextBlock Text="{Binding Initials}" Foreground="White" FontSize="11"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="9,0,0,0" VerticalAlignment="Center"
+                                               FontSize="13.5" Foreground="{DynamicResource InkBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Status}" VerticalAlignment="Center"
+                                               FontSize="11" Margin="6,0,0,0" Foreground="{StaticResource AccentDeepBrush}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+
+        <!-- footer: settings + dark-mode toggle -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="4,8,0,2">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Width" Value="30"/>
+                    <Setter Property="Height" Value="30"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Foreground" Value="{DynamicResource InkSecondaryBrush}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" CornerRadius="7" Background="Transparent">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </StackPanel.Resources>
+            <Button Click="OnOpenDataFolder" ToolTip="Open notes data folder">
+                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
+            </Button>
+            <Button Command="{Binding ToggleThemeCommand}" ToolTip="Toggle dark mode">
+                <TextBlock Text="&#xE708;" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

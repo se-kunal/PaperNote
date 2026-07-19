@@ -1,0 +1,89 @@
+<Window x:Class="PaperNote.Views.QuickCaptureWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quick note"
+        Width="344" Height="178"
+        WindowStartupLocation="Manual"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True"
+        FontFamily="{StaticResource UiFont}">
+    <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="14"
+            BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#3B2B18" Opacity="0.30" BlurRadius="30" ShadowDepth="6" Direction="270"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- brand hairline: the espresso gradient, quiet -->
+            <Border Grid.Row="0" Height="3" Background="{StaticResource AccentGradientBrush}"
+                    CornerRadius="14,14,0,0" Margin="1,0,1,0"/>
+
+            <Grid Grid.Row="1" Margin="16,10,12,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- header: handwritten label, like the corner of a real note -->
+                <Grid Grid.Row="0">
+                    <TextBlock Text="Quick note"
+                               FontFamily="pack://application:,,,/Assets/Fonts/#Caveat Medium"
+                               FontSize="19" Foreground="{StaticResource AccentDeepBrush}"
+                               VerticalAlignment="Center" RenderTransformOrigin="0,1">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform Angle="-1.5"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+
+                    <Button x:Name="CloseBtn" Click="OnDiscard" Cursor="Hand" Content="✕"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Width="20" Height="20" FontSize="11" Padding="0" BorderThickness="0"
+                            Foreground="{DynamicResource InkTertiaryBrush}" Background="Transparent"
+                            ToolTip="Discard (Esc)">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" CornerRadius="10" Background="Transparent">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+
+                <!-- the page: serif ink over a handwritten hint that fades as you type -->
+                <Grid Grid.Row="1" Margin="0,7,4,4">
+                    <TextBlock x:Name="Hint" Text="jot it down…" IsHitTestVisible="False"
+                               FontFamily="pack://application:,,,/Assets/Fonts/#Caveat Medium"
+                               FontSize="23" Foreground="{StaticResource AccentBrush}" Opacity="0.55"
+                               VerticalAlignment="Top" Margin="1,0,0,0" RenderTransformOrigin="0,1">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform Angle="-1.2"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                    <TextBox x:Name="Box" AcceptsReturn="True" TextWrapping="Wrap"
+                             TextChanged="OnTextChanged"
+                             VerticalScrollBarVisibility="Auto"
+                             FontFamily="Georgia, Cambria" FontSize="14.5"
+                             Foreground="{DynamicResource InkBrush}"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="0" VerticalAlignment="Stretch"/>
+                </Grid>
+
+                <!-- footer: the contract, whispered -->
+                <TextBlock Grid.Row="2" Text="click away saves  ·  Esc discards"
+                           FontFamily="{StaticResource MonoFont}" FontSize="10"
+                           Foreground="{DynamicResource InkTertiaryBrush}" Opacity="0.8"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

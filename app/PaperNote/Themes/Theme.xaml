@@ -1,0 +1,83 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:local="clr-namespace:PaperNote">
+
+    <!-- PaperNote theme tokens. Source of truth: design/design-system.md -->
+
+    <local:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+
+    <!-- List item entrance: gentle fade + rise (~180ms ease-out). -->
+    <Style x:Key="AnimatedListItem" TargetType="ListBoxItem">
+        <Setter Property="RenderTransform">
+            <Setter.Value><TranslateTransform/></Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1" Duration="0:0:0.18"/>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                         From="10" To="0" Duration="0:0:0.18">
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Colors: warm paper neutrals (espresso family, light) -->
+    <Color x:Key="PaperColor">#FDFBF7</Color>
+    <Color x:Key="SurfaceColor">#FDFBF7</Color>
+    <Color x:Key="ListBgColor">#F8F4EC</Color>
+    <Color x:Key="SidebarBgColor">#F3ECDF</Color>
+    <Color x:Key="InkColor">#221B12</Color>
+    <Color x:Key="InkSecondaryColor">#564939</Color>
+    <Color x:Key="InkTertiaryColor">#94836E</Color>
+    <Color x:Key="LineColor">#163B2B18</Color>
+    <Color x:Key="HoverColor">#0A3B2B18</Color>
+
+    <!-- Colors: brand amber accent (espresso family) -->
+    <Color x:Key="AccentLightColor">#F2C289</Color>
+    <Color x:Key="AccentColor">#D98E48</Color>
+    <Color x:Key="AccentDeepColor">#B0722C</Color>
+    <Color x:Key="SelectedColor">#1FD98E48</Color>
+
+    <!-- Accent brushes (amber, same in light + dark; never recolored). -->
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentDeepBrush" Color="{StaticResource AccentDeepColor}"/>
+
+    <!-- The themeable neutrals (Paper/Surface/ListBg/SidebarBg/Ink*/Line/Hover/Selected)
+         are created in code by ThemeManager so they stay mutable for live dark-mode.
+         XAML-defined brushes get frozen and can't be recolored at runtime. -->
+
+    <!-- Brand gradient: 135deg light -> deep -->
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource AccentLightColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource AccentDeepColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Caret follows ink so it stays visible on dark paper (default caret is black). -->
+    <Style TargetType="TextBox">
+        <Setter Property="CaretBrush" Value="{DynamicResource InkBrush}"/>
+    </Style>
+
+    <!-- Fonts: chrome = native Segoe UI Variable. Editor serif (Literata) handled in WebView2. -->
+    <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="MonoFont">Cascadia Code, Consolas</FontFamily>
+
+    <!-- Shape / spacing scale (4/8 grid) -->
+    <CornerRadius x:Key="PanelRadius">10</CornerRadius>
+    <CornerRadius x:Key="ControlRadius">6</CornerRadius>
+    <sys:Double x:Key="Space1">4</sys:Double>
+    <sys:Double x:Key="Space2">8</sys:Double>
+    <sys:Double x:Key="Space3">12</sys:Double>
+    <sys:Double x:Key="Space4">16</sys:Double>
+    <sys:Double x:Key="Space6">24</sys:Double>
+
+</ResourceDictionary>

@@ -1,0 +1,57 @@
+<Window x:Class="PaperNote.Views.NamePrompt"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PaperNote sharing"
+        SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        FontFamily="{StaticResource UiFont}">
+    <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="12"
+            BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="24">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.25" BlurRadius="28" ShadowDepth="6" Direction="270"/>
+        </Border.Effect>
+        <StackPanel Width="300">
+            <TextBlock Text="Share on your network" FontSize="16" FontWeight="SemiBold"
+                       Foreground="{DynamicResource InkBrush}"/>
+            <TextBlock Text="Pick a name others on the LAN will see." FontSize="12" Margin="0,4,0,16"
+                       Foreground="{DynamicResource InkTertiaryBrush}" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border x:Name="AvatarChip" Width="48" Height="48" CornerRadius="24"
+                        Background="{StaticResource AccentBrush}" VerticalAlignment="Center">
+                    <TextBlock x:Name="Initials" Text="?" FontSize="17" FontWeight="SemiBold"
+                               Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBox x:Name="NameBox" Width="220" Margin="14,0,0,0" Padding="10,9" FontSize="14"
+                         VerticalContentAlignment="Center" VerticalAlignment="Center"
+                         Background="{DynamicResource PaperBrush}" Foreground="{DynamicResource InkBrush}"
+                         BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                         TextChanged="OnNameChanged"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Cancel" Click="OnCancel" Cursor="Hand" Padding="14,7" Margin="0,0,8,0"
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource InkSecondaryBrush}"/>
+                <Button x:Name="SaveBtn" Content="Start sharing" Click="OnSave" Cursor="Hand"
+                        Padding="14,7" Foreground="White" BorderThickness="0" IsEnabled="False">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" CornerRadius="7" Background="{StaticResource AccentBrush}" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentDeepBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
